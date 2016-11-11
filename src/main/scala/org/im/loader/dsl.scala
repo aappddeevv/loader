@@ -185,7 +185,7 @@ trait datamappings {
    * @param C Input Context
    * @param F Effect return values is wrapped in.
    * @param R Type of result value
-   * @parma E Executor that executes the rule.
+   * @param E Executor that executes the rule.
    */
   trait RuleDef[R] {
 
