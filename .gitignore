@@ -1,0 +1,12 @@
+target
+build
+bin
+*~
+.project
+.settings
+.classpath
+.idea
+.cache*
+*.iml
+nohup.out
+.ensime
