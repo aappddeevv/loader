@@ -30,14 +30,15 @@ libraryDependencies ++= Seq(
 ```
 Once you have specified this project as a dependency
 you need to:
-1 Create your main program
-2 Create your command line options. There are some
-available to you using the program.parser value.
-3 Develop your mappings (see below)
-4 Call the program.runloader function providing
+* Create your main program
+* Create your command line options. There are some
+options available to you using the program.parser value.
+* Develop your mappings (see below).
+* Call the `program.runloader(..)` function providing
 your command line parser (derived from (2)), the
-default configuration with your list of mappings
-and the command line arguments.
+default configuration derived from `org.im.loader.Config`
+with your list of mappings and the command arguments
+from your main class.
 
 That's it!
 
@@ -113,4 +114,3 @@ to obtain a zip file that can be installed, however, it is
 really designed to a library that you embed in your
 application so that you can provide the statically compiled
 mappings. 
-
