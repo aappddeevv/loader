@@ -94,22 +94,21 @@ object program {
           action((x, c) => c.copy(mode = "printMappings", exportFile = x)))
 
     note("The url should be a JDBC url. See your JDBC provider for formats and details.")
-  }
 
-  /**
-   * Write your own main and fill in the default config object.
-   */
-  def main(args: scala.Array[String]): Unit = {
-    runloader(args, defaultConfig)
+    /**
+     * The options from this parser to be rolled into another. Or just
+     *  copy the options from above.
+     */
+    def stdargs = options
   }
 
   /**
    * For most people, the main entry point into the loader.
-   *  Make sure your config already has your mappings in it
-   *  and the rest of the arguments will be filled in from
-   *  the command line.
+   *  You have a chance to modify your mappings e.g. perform
+   *  initialization, using `f`.
    */
-  def runloader(args: scala.Array[String], defaultConfig: Config): Unit = {
+  def runloader(args: scala.Array[String], parser: scopt.OptionParser[Config],
+    defaultConfig: Config, f: Config => Config): Unit = {
     val config = parser.parse(args, defaultConfig) match {
       case Some(c) => c
       case None => return
@@ -118,8 +117,8 @@ object program {
     println(s"Program start: ${instantString}")
     try {
       config.mode match {
-        case "load" => Loader.load(config)
-        case "printMappings" => Loader.exportMappings(config)
+        case "load" => Loader.load(f(config))
+        case "printMappings" => Loader.exportMappings(f(config))
         case x@_ => println(s"Unknown mode: $x")
       }
     } catch {
@@ -140,6 +139,13 @@ object program {
       DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG)
         .withZone(ZoneId.systemDefault());
     formatter.format(Instant.now)
+  }
+
+  /**
+   * Write your own main, this is here as a reference.
+   */
+  def main(args: scala.Array[String]): Unit = {
+    runloader(args, parser, defaultConfig, (c: Config) => c)
   }
 
 }
