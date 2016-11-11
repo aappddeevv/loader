@@ -3,26 +3,10 @@ package loader
 
 import scala.reflect.runtime.universe._
 import scala.language._
-import scala.util.control.Exception._
-import scopt._
-import org.w3c.dom._
-import dispatch._
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.async.Async._
 import scala.util._
-import org.log4s._
 import cats._
 import cats.data._
-import better.files._
-import java.io.{ File => JFile }
-import fs2._
-import scala.concurrent.ExecutionContext
 import java.sql._
-import cats._
-import cats.data._
-import scala.collection.mutable.ListBuffer
-import com.lucidchart.open.relate.interp._
 
 /**
  * A simple DSL for schema definition. Simple type conversions can
@@ -32,13 +16,13 @@ import com.lucidchart.open.relate.interp._
  *
  * A Schema is designed to assist in input record conversion from the raw input
  * record type to the type needed to run rules. It is not intended to be a
- * plain schema description DSL although it can do that. So, you define 
+ * plain schema description DSL although it can do that. So, you define
  * the schema for the input attributes, not the targets.
- * 
+ *
  * Subclasses can define other constraints, such as the maxlen on a string
  * input, because only subclasses know what the input objects look like.
  *
- * TODO: Should the converter be in the schema definition? It assumes 
+ * TODO: Should the converter be in the schema definition? It assumes
  * that the input objects are `Option`s.
  */
 trait schemacapture {
@@ -49,7 +33,7 @@ trait schemacapture {
   /** Each schema item has basic information. */
   type SchemaItem[R] >: Null <: SchemaDef[R]
 
-  /** 
+  /**
    *  @param R The type that should come out of the raw input record.
    */
   trait SchemaDef[R] {
@@ -73,7 +57,7 @@ trait schemacapture {
 
   /** Access the schema information by attribute name. */
   def schema: scala.collection.immutable.Map[String, SchemaItem[_]]
-  
+
   /** Return the schema items in the order they were defined. */
   def schemaInOrder: Seq[(SchemaItem[_], Int)]
 

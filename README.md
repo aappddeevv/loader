@@ -39,10 +39,10 @@ then add the published file as a dependency to your
 project.
 ```scala
 libraryDependencies ++= Seq(
-"org.im" %% "loader-csv" % "latest.version"
+"org.im.loader" %% "csv" % "latest.version"
 )
 ```
-This automatically pulls in `loader-core`.
+This automatically pulls in `org.im.loader.core`.
 
 Once you have specified this project as a dependency
 you need to:
