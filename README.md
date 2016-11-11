@@ -7,10 +7,15 @@ to specify the attribute mappings.
 
 The project started out many years ago as a java program
 hosted on sourceforge but I moved it over to github and
-updated it to use scala about a year ago. Its been tested
+updated it to use scala about a year ago. I received
+a large number of private updates from various versions
+in between and recently was prompted privately to publish
+them into github.
+
+Its been tested
 in production environments to be "good enough" to work on
-large loads. If you can, use your ETL tool or bulk loaders
-specific to your RDBMS, but otherwise you may find this
+large loads. Use your ETL tool or bulk loaders
+specific to your RDBMS first, but otherwise you may find this
 simple application useful.
 
 ##Mappings Development
@@ -57,7 +62,7 @@ To create your mappings, derive from the mappings
 object in org.im.loader and specify mappings using
 the DSL.
 ```scala
-object table1mappings extends mappings("table1", "mappings", Some("theschema")) {
+object table1mappings extends mappings("table1", "table1", Some("theschema")) {
     import sourcefirst._
     import org.im.loader.Implicits._
     import com.lucidchart.open.relate.interp.Parameter._ 
@@ -72,12 +77,18 @@ object table1mappings extends mappings("table1", "mappings", Some("theschema")) 
 ```
 You can also define the schema in the mappings to help
 with type conversions before your rule receive your data.
+Subclassing the mappings object allows you to add your
+convenience combinator methods to the mappings object.
+For example, you could add a 'lookup' combinator or
+a `.directMoveButOnlyUnderCertainConditions` combinator.
 
 "Source first" mappings are mappings that start with the
 source such as `string("cola")`. That says that the mapping
-should have the source attribute in the input record to
-be `cola`. It's better to specify a target first mapping
-using `to[..](..)` and then specify rules. Rules
+should have the source attribute come from the attribute `cola1`
+in the input record. 
+
+It's better to specify a "target first" mapping
+such as `to[..](..)` and then specify processing rules. Rules
 have a priority and are run in priority order. See the
 dsltests.scala file in the test directory for examples
 of mappings and how to specify the rules.
@@ -86,15 +97,15 @@ of mappings and how to specify the rules.
 ##Mapping Testing
 The typical development  model is to leave your project open
 in your editor, edit your mappings, then run the load from
-the sbt command line for unit tests. Once, the mappings
+the sbt command line for unit tests. Once the mappings
 are complete, bundle up "your" project and deploy it. Since
-the library is not deployed to maven, just download it,
-add your IDE's configuration using
+this library is not deployed to maven, download it,
+then create your IDE's configuration using
 ```sh
 sbt eclipse with-source=true
 ```
-then develop and test your mappings, then deploy them via
-a zip file.
+Develop and test your mappings. Then deploy the entire
+application via a zip file.
 
 Check out the `dsltest.scala` test file for examples of how
 to specify your mappings.
@@ -103,14 +114,13 @@ You will want to drop your favorite jdbc lib into the lib directory
 or include it in the dependencies inside build.sbt.
 
 
-
 ##Deploying
 
 The application can be packaged by typing
 ```sh
 sbt universal:packageBin 
 ```
-to obtain a zip file that can be installed, however, it is
-really designed to a library that you embed in your
-application so that you can provide the statically compiled
-mappings. 
+to obtain a zip file that can be installed. You will want
+to have the same plugins specified in this library
+in your own project's project/plugins.sbt to make this work.
+
