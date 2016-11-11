@@ -45,6 +45,7 @@ object program {
   private[this] implicit val logger = getLogger
 
   val defaultConfig = Config()
+
   val parser = new scopt.OptionParser[Config]("loader") {
     override def showUsageOnError = true
     opt[String]('u', "username").optional().valueName("<username>").text("username")
@@ -95,7 +96,20 @@ object program {
     note("The url should be a JDBC url. See your JDBC provider for formats and details.")
   }
 
+  /**
+   * Write your own main and fill in the default config object.
+   */
   def main(args: scala.Array[String]): Unit = {
+    runloader(args, defaultConfig)
+  }
+
+  /**
+   * For most people, the main entry point into the loader.
+   *  Make sure your config already has your mappings in it
+   *  and the rest of the arguments will be filled in from
+   *  the command line.
+   */
+  def runloader(args: scala.Array[String], defaultConfig: Config): Unit = {
     val config = parser.parse(args, defaultConfig) match {
       case Some(c) => c
       case None => return
