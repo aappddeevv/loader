@@ -420,22 +420,26 @@ abstract case class mappings(entity: String, table: String, schema: Option[Strin
   /** Input schema definition to extract from the input record type. */
   class schema extends schemacapture {
     type SchemaItem[R] = SchemaDef[R]
+    
     case class SchemaDef[R](
         _name: String,
         _tag: TypeTag[R],
         _nullable: Boolean = true,
         _comment: Option[String] = None,
         _converter: ConverterFunction[_, R],
-        _aliases: Seq[String] = Seq()) extends super.SchemaDef[R] {
+        _aliases: Seq[String] = Seq(),
+        _meta: Map[String, Any] = Map()) extends super.SchemaDef[R] {
       def nullable: SchemaItem[R] = copy(_nullable = true)
       def required: SchemaItem[R] = copy(_nullable = false)
       def comment(c: String): SchemaItem[R] = copy(_comment = Option(c))
       def aliases(head: String, tail: String*): SchemaItem[R] = copy(_aliases = Seq(head) ++ tail)
+      def meta(adds: Map[String, Any]): SchemaItem[R] = copy(_meta = _meta ++ adds)
     }
 
-    private val _schema = scala.collection.mutable.HashMap.empty[String, SchemaItem[_]]
-    def schema = _schema.toMap
-    def addOrReplace[R](name: String, s: SchemaItem[R]): SchemaItem[R] = { _schema(name) = s; s }
+    private val _schema = scala.collection.mutable.ListBuffer.empty[SchemaItem[_]]
+    def schema = _schema.map(si => (si._name, si)).toMap
+    def schemaInOrder = _schema.zipWithIndex
+    def addOrReplace[R](name: String, s: SchemaItem[R]): SchemaItem[R] = { _schema += s; s }
     protected def mk[R](name: String, c: ConverterFunction[_, R], t: TypeTag[R]): SchemaItem[R] = SchemaDef(name, t, _converter = c)
     // Bring converters appropriate to the `Record` input type.
     import Implicits._

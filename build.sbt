@@ -10,14 +10,14 @@ scalaVersion := "2.11.8"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
-resolvers += Resolver.url("file://" + Path.userHome.absolutePath + "/.ivy/local")
-resolvers += Resolver.sonatypeRepo("releases")
-resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-resolvers += Resolver.bintrayRepo("scalaz", "releases")
-resolvers += Resolver.jcenterRepo
+resolvers in ThisBuild += Resolver.url("file://" + Path.userHome.absolutePath + "/.ivy/local")
+resolvers in ThisBuild += Resolver.sonatypeRepo("releases")
+resolvers in ThisBuild += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+resolvers in ThisBuild += Resolver.bintrayRepo("scalaz", "releases")
+resolvers in ThisBuild += Resolver.jcenterRepo
 
 
-libraryDependencies ++= Seq(
+val deps = Seq(
   "org.scalatest" %% "scalatest" %  "latest.release" % "test"
     ,"org.scala-lang.modules" %% "scala-xml" % "latest.release"
     ,"com.typesafe" % "config" %  "latest.release"
@@ -38,8 +38,37 @@ libraryDependencies ++= Seq(
     ,"com.bizo" %% "mighty-csv" % "latest.version"
     ,"net.sf.opencsv" % "opencsv" % "latest.version"
 	,"org.apache.commons" % "commons-lang3" % "latest.release"
-
 )
+
+
+lazy val commonSettings = Seq(
+  organization := "org.im",
+  version := "0.1.0",
+  scalaVersion := "2.11.8",
+  EclipseKeys.useProjectId := true,
+  EclipseKeys.withSource := true,
+  EclipseKeys.skipParents in ThisBuild := false,
+  EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource)
+
+lazy val root = (project in file(".")).
+  aggregate(core, csv, spark)
+  
+lazy val core = (project in file("core")).
+  settings(commonSettings: _*).
+  settings(name := "loader-core").
+  settings(libraryDependencies ++= deps)
+
+lazy val csv = (project in file("csv")).
+  settings(commonSettings: _*).
+  settings(name := "loader-csv").
+  dependsOn(core).
+  settings(libraryDependencies ++= deps)
+  
+lazy val spark = (project in file("spark")).
+  settings(commonSettings: _*).
+  settings(name := "loader-spark").
+  dependsOn(core)
+
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 

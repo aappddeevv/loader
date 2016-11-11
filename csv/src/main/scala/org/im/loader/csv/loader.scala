@@ -1,5 +1,6 @@
 package org.im
 package loader
+package csv
 
 import java.time._, format._
 import org.log4s._
@@ -26,7 +27,6 @@ import fs2.io._
 import java.util.concurrent.Executors
 import scala.concurrent._
 import java.util.concurrent.{ atomic => juca }
-
 
 object Loader {
 
@@ -239,22 +239,37 @@ object Loader {
 
   def exportMappings(config: Config): Unit = {
     import better.files._
-    val f = config.exportFile.toFile
+    val f = (config.exportFile + ".csv").toFile
     f < "entity,schema,targettable,target,typenote,sources,skipmapping,requiredbytarget,description\n"
     config.mappings.foreach { s =>
-      s.allMappings.foreach { m =>        
-        val sources = (m.sources ++ (m.source.map(Seq(_)) orElse(Option(Nil))).get).distinct        
+      s.allMappings.foreach { m =>
+        val sources = (m.sources ++ (m.source.map(Seq(_)) orElse (Option(Nil))).get).distinct
         val line =
           s.entity + "," +
             s.schema.getOrElse("") + "," +
             s.table + "," +
             m.target + "," +
-            m.typeNote.getOrElse("") + "," +            
+            m.typeNote.getOrElse("") + "," +
             s"""${sources.mkString(";")}""" + "," +
             (if (m.skip) "true" else "false") + "," +
             (if (m.nullable) "false" else "true") + "," +
             m.description.map(_.trim).getOrElse("")
         f << line
+      }
+    }
+    val fs = (config.exportFile + "-shema.csv").toFile
+    fs < "entity,schema,targettable,source,nullable,comment\n"
+    config.mappings.foreach { m =>
+      m.ischema.schema.foreach {
+        case (k, v) =>
+          val line = m.entity + "," +
+            m.schema.getOrElse("") + "," +
+            m.table + "," +
+            k + "," +
+            v._name + "," +
+            (if (v._nullable) "true" else "false") + "," +
+            v._comment
+          fs << line
       }
     }
   }

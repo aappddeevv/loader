@@ -1,5 +1,6 @@
 package org.im
 package loader
+package csv
 
 import java.time._, format._
 import org.log4s._
@@ -19,8 +20,8 @@ case class Config(
   timeout: Int = 30 * 60, // seconds
   username: String = "",
   password: String = "",
-  /** The file to write a summary of the mappings to. */
-  exportFile: String = "mapping.csv",
+  /** The file to write a summary of the mappings to, csv format. */
+  exportFile: String = "mapping",
   /** Input file to read data from */
   inputFile: String = "",
   /** Tag on the mappings to load. */

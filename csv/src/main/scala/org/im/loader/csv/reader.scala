@@ -1,5 +1,6 @@
 package org.im
 package loader
+package csv
 
 import scala.language._
 import com.bizo.mighty.csv._

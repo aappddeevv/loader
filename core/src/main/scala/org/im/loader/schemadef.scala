@@ -32,8 +32,8 @@ import com.lucidchart.open.relate.interp._
  *
  * A Schema is designed to assist in input record conversion from the raw input
  * record type to the type needed to run rules. It is not intended to be a
- * plain schema description DSL. So, you define the schema for the input
- * attributes, not the targets.
+ * plain schema description DSL although it can do that. So, you define 
+ * the schema for the input attributes, not the targets.
  * 
  * Subclasses can define other constraints, such as the maxlen on a string
  * input, because only subclasses know what the input objects look like.
@@ -52,18 +52,20 @@ trait schemacapture {
   /** 
    *  @param R The type that should come out of the raw input record.
    */
-  trait SchemaDef[R] {    
+  trait SchemaDef[R] {
     def _name: String
     def _tag: TypeTag[R]
     def _nullable: Boolean
     def _comment: Option[String]
     def _converter: ConverterFunction[_, R]
     def _aliases: Seq[String]
+    def _meta: Map[String, Any]
 
     def nullable: SchemaItem[R]
     def comment(c: String): SchemaItem[R]
     def required: SchemaItem[R]
     def aliases(head: String, tail: String*): SchemaItem[R]
+    def meta(adds: Map[String, Any]): SchemaItem[R]
   }
 
   /** Add or replace a ScemaItem. */
@@ -71,6 +73,9 @@ trait schemacapture {
 
   /** Access the schema information by attribute name. */
   def schema: scala.collection.immutable.Map[String, SchemaItem[_]]
+  
+  /** Return the schema items in the order they were defined. */
+  def schemaInOrder: Seq[(SchemaItem[_], Int)]
 
   /** Make a schema def with minimal information. */
   protected def mk[R](name: String, c: ConverterFunction[_, R], t: TypeTag[R]): SchemaItem[R]

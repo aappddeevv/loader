@@ -3,6 +3,15 @@ An application that loads data into an RDBMS
 using parallel loads and a simple DSL inspired by ETL tools
 to specify the attribute mappings.
 
+The DSL for schema definition and mapping transforms is 
+generic and can be used in many environments, including
+spark.  You can define your schema using the DSL then
+define your transformation rules using the rules DSL and
+apply them to a dataframe. The rules are automatically
+translated into spark-friendly code.
+
+Using the DSL requires some knowledge of scala, but not much.
+
 ##History
 
 The project started out many years ago as a java program
@@ -30,9 +39,11 @@ then add the published file as a dependency to your
 project.
 ```scala
 libraryDependencies ++= Seq(
-"org.im" %% "loader" % "latest.version"
+"org.im" %% "loader-csv" % "latest.version"
 )
 ```
+This automatically pulls in `loader-core`.
+
 Once you have specified this project as a dependency
 you need to:
 * Create your main program
@@ -124,3 +135,8 @@ to obtain a zip file that can be installed. You will want
 to have the same plugins specified in this library
 in your own project's project/plugins.sbt to make this work.
 
+
+##Spark Support
+Spark support is in the mix and the code will be refactored
+so that the ETL-style approach expressed in the DSL
+works well with Spark dataframes. This includes schema definition.
