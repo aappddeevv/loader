@@ -16,10 +16,10 @@ import java.sql.Connection
 case class Config(
   mode: String = "load",
   /** JDBC url. */
-  url: String = "",
+  url: String = Option(System.getenv("URL")).getOrElse(""),
   timeout: Int = 30 * 60, // seconds
-  username: String = "",
-  password: String = "",
+  username: String = Option(System.getenv("USERNAME")).getOrElse(""),
+  password: String = Option(System.getenv("PASSWORD")).getOrElse(""),
   /** The file to write a summary of the mappings to, csv format. */
   exportFile: String = "mapping",
   /** Input file to read data from */
@@ -69,6 +69,7 @@ object program {
       action((x, c) => c.copy(connectionPoolSize = Some(x)))
 
     help("help").text("Show help")
+    note("Environment variables USERNAME, PASSWORD and JDBC URL are used if not specified on the command line.")
 
     cmd("load").action((_, c) => c.copy(mode = "load")).
       text("Load a CSV file into a target RDBMS table.").

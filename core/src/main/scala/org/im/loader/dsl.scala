@@ -102,6 +102,8 @@ trait RecordConverterCapability[R] {
  *  TODO: Make this a monad although that would fly
  *  in the face of the Rules based model. Think about whether
  *  we would want to do that.
+ *  
+ *  TODO: Parameterize the effect Option.
  */
 sealed trait RuleResult
 /** Rule produced a valid output value, which can be None. */
@@ -116,13 +118,14 @@ case class NotApplicable(reason: Option[String] = None) extends RuleResult
  * are a collection of mapping definitions. Each
  * mapping definition has a set of rules that can
  * be applied to an input record. There are three stages to
- * mappings, (e)xtract from the input Recrod, (t)ransform
+ * mappings, (e)xtract from the input Record, (t)ransform
  * from the input record to an output format and (l)oad where
  * the transformed data is packed into some type of output.
  * The ETL concept is inherent in a single mappings object as well
  * as across mappings objects that are composed together.
  *
- * @param Record Input record type.
+ * @param OPT The effect to wrap values in e.g. Optional. Values can be
+ * wrapped in both the input record and the output of a mapping.
  */
 trait datamappings {
 
@@ -140,7 +143,7 @@ trait datamappings {
 
   /** Rules are collected together in a mapping definition. */
   type Rule[R] >: Null <: RuleDef[R]
-
+  
   /**
    * A specific mapping that contains rules.
    *
@@ -148,7 +151,7 @@ trait datamappings {
    *  @param R The output type of the mapping.
    */
   type Mapping[R] >: Null <: MappingDef[R]
-
+  
   /**
    * Main input into a rule when it is being run.
    *
@@ -160,7 +163,10 @@ trait datamappings {
     /** The input record. */
     def input: Record
 
-    /** If the input record contains an attribute. */
+    /** If the input record contains an attribute.
+     *  
+     * TODO: Should this be in the API? 
+     */
     def isInRecord(name: String): Boolean
 
     /**
@@ -225,11 +231,11 @@ trait datamappings {
   /**
    *
    * A mapping definition is really a thin wrapper around a set of
-   * rules. The "T" and "L" in "ETL" are broken into two
-   * different models. The "T" is represented by business rules
-   * which create a jvm type as output.
+   * rules.
    *
    * @param R The output type of the mapping.
+   * 
+   * TODO: Paramertize the Option effect out.
    */
   trait MappingDef[R] {
 

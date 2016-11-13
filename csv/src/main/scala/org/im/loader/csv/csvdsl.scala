@@ -30,7 +30,8 @@ import com.lucidchart.open.relate.interp._
  * created that are source-side centric or target-side centric. Mappings
  * are created as a set of rules to be applied to an input record.
  *
- * This class assumes records are maps of column names to strings.
+ * This class assumes records are maps of column names to strings and optional/
+ * missing values are represented by the effect Option.
  *
  * You will need import `interp` otherwise you have to explicitly
  * provide a function to take your transform output and create
