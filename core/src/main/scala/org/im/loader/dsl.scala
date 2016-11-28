@@ -23,72 +23,6 @@ import cats.data._
 import scala.collection.mutable.ListBuffer
 
 /**
- *  A capability to convert entire records from an input type to an
- *  output type with a simple function. Ths is not about
- *  mappings which contain rules and business logic per attribute, but
- *  simple object transformation prior to or after running mappings.
- *
- *  The trait is more like a module. Once you instantiate the trait
- *  you can then instantiate the Converter class defined
- *  and use that object to perform the extraction/conversion.
- */
-trait RecordConverterCapability[R] {
-
-  /** The output record type. */
-  type OutputRecord = R
-
-  /**
-   * The type of record input type.
-   */
-  type Record
-
-  /**
-   * Context input into an extract function. Extract
-   *  functions are mostly dump and just transform
-   *  from a simple type to the Record type.
-   */
-  type ConverterContext >: Null <: ConverterContextDef
-
-  /**
-   * An Extractor takes an ERecord and potentially returns
-   * an Record.
-   */
-  type Converter >: Null <: ConverterDef
-
-  /**
-   * The basic input into an Extractor is the input record
-   *  itsef. Subclasses may add additional information or
-   *  convenience functions.
-   */
-  trait ConverterContextDef {
-    /** Raw input record type. */
-    def input: Record
-  }
-
-  /**
-   * Converting a record from one type to another
-   */
-  sealed trait ConvertResult
-  /** Error with an attribute. */
-  case class Error(aname: String, msg: String) extends ConvertResult
-  /** Input record conversation resulted in a warning. */
-  case class Warning(aname: String, issue: String) extends ConvertResult
-
-  /** A basic Extractor is a simple function. */
-  trait ConverterDef extends {
-    /**
-     * When asked to transform a record, return either a
-     *  non-empty list of errors or a `Record` result with
-     *  some warnings. The function should know how to handle
-     *  optional/nullable/missing values and be able to
-     *  encode that from ERecord to Record
-     */
-    def apply(e: ConverterContext): ValidatedNel[Error, (Seq[Warning], OutputRecord)]
-  }
-
-}
-
-/**
  * Running rule for a mapping can produce 1 of 3 results.
  *  This trait feels like a Partial Function
  *  where the function may not apply at all values (hence
@@ -127,7 +61,7 @@ case class NotApplicable(reason: Option[String] = None) extends RuleResult
  * @param OPT The effect to wrap values in e.g. Optional. Values can be
  * wrapped in both the input record and the output of a mapping.
  */
-trait datamappings {
+trait datamappings { self =>
 
   /**
    * Input type for running mappings. A mappings implementation
@@ -216,8 +150,12 @@ trait datamappings {
    */
   type Extractor >: Null <: RecordConverterCapabilityDef
 
-  /** An extraction capability that outputs a record of type `Record`. */
-  trait RecordConverterCapabilityDef extends RecordConverterCapability[Record]
+  /** An extraction capability that outputs a record of type `Record`
+   *  as defined in the mappings trait.
+   */
+  trait RecordConverterCapabilityDef extends RecordConverterCapability {
+    type OutputRecord = self.Record
+  }
 
   /**
    * The extractor that acts as a pre-processor for this mappings object.

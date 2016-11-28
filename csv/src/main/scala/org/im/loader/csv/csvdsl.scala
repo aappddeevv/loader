@@ -104,7 +104,7 @@ abstract case class mappings(entity: String, table: String, schema: Option[Strin
    */
   val ischema = new schema()
 
-  /** Convert from CSV reader based on strings to some specific types. */
+  /** Convert from CSV reader based on a map of strings to strings. */
   class MapExtractionCapability extends super.RecordConverterCapabilityDef {
 
     type Record = Map[String, Option[String]]
@@ -155,7 +155,8 @@ abstract case class mappings(entity: String, table: String, schema: Option[Strin
 
   val extractor = new MapExtractionCapability()
 
-  class ParameterOutputCapability extends RecordConverterCapability[Map[String, Parameter]] {
+  class ParameterOutputCapability extends RecordConverterCapability {
+    type OutputRecord = Map[String, Parameter]
     type Record = Map[String, Option[_]]
     type ConeverterContext = RecordAndIdx
     type Converter = StringToOptionConverter
